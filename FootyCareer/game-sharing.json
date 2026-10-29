@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 2,
+  "title": "Footy Career",
+  "description": "Bangun karier pesepak bola melalui latihan, pertandingan, pengelolaan tim, dan transfer.",
+  "defaultCaptions": {},
+  "assets": {
+    "favicon": "assets/football/runtime/footy_icon.png"
+  }
+}

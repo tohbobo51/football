@@ -1,0 +1,120 @@
+name: Build Footy Career Android APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Tag release unik (v1.0.0 untuk rilis pertama; gunakan tag baru untuk build berikutnya)"
+        required: true
+        default: "v1.0.0"
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  android-apk:
+    name: Export and publish debug APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install OpenJDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install Android SDK tools
+        uses: android-actions/setup-android@v4
+
+      - name: Install Godot-required Android SDK packages
+        run: >-
+          sdkmanager --sdk_root="$ANDROID_HOME"
+          "platform-tools"
+          "build-tools;35.0.1"
+          "platforms;android-35"
+          "cmdline-tools;latest"
+          "cmake;3.10.2.4988404"
+          "ndk;28.1.13356709"
+
+      - name: Configure Godot Android editor settings
+        shell: bash
+        run: |
+          mkdir -p "$HOME/.config/godot"
+          cat > "$HOME/.config/godot/editor_settings-4.tres" <<EOF
+          [gd_resource type="EditorSettings" format=3]
+
+          [resource]
+          export/android/android_sdk_path = "$ANDROID_HOME"
+          export/android/java_sdk_path = "$JAVA_HOME"
+          EOF
+
+      - name: Create temporary Android debug signing key
+        shell: bash
+        run: |
+          mkdir -p "$HOME/.android"
+          keytool -genkeypair -v \
+            -keystore "$HOME/.android/debug.keystore" \
+            -storepass android \
+            -keypass android \
+            -alias androiddebugkey \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=Android Debug,O=Android,C=US"
+          {
+            echo "GODOT_ANDROID_KEYSTORE_DEBUG_PATH=$HOME/.android/debug.keystore"
+            echo "GODOT_ANDROID_KEYSTORE_DEBUG_USER=androiddebugkey"
+            echo "GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD=android"
+          } >> "$GITHUB_ENV"
+
+      - name: Prepare Android output directory
+        run: mkdir -p FootyCareer/dist
+
+      - name: Export Godot Android APK
+        uses: firebelley/godot-export@v8.0.0
+        with:
+          godot_executable_download_url: https://downloads.godotengine.org/?version=4.7.2&flavor=stable&slug=linux.x86_64.zip&platform=linux.64
+          godot_export_templates_download_url: https://downloads.godotengine.org/?version=4.7.2&flavor=stable&slug=export_templates.tpz&platform=templates
+          relative_project_path: FootyCareer/
+          use_preset_export_path: true
+          export_debug: true
+          presets_to_export: Android
+          cache: true
+
+      - name: Validate APK package, signature, and requested ABIs
+        shell: bash
+        run: |
+          set -euo pipefail
+          apk="FootyCareer/dist/FootyCareer.apk"
+          test -s "$apk"
+          unzip -tq "$apk"
+          "$ANDROID_HOME/build-tools/35.0.1/apksigner" verify "$apk"
+          "$ANDROID_HOME/build-tools/35.0.1/aapt" dump badging "$apk" \
+            | grep -F "package: name='com.tohbobo51.footycareer'"
+          unzip -l "$apk" | grep -q 'lib/arm64-v8a/'
+          unzip -l "$apk" | grep -q 'lib/armeabi-v7a/'
+          ls -lh "$apk"
+
+      - name: Upload verified APK as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FootyCareer-Android-APK
+          path: FootyCareer/dist/FootyCareer.apk
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Create GitHub release and attach APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          gh release create "$RELEASE_TAG" \
+            "FootyCareer/dist/FootyCareer.apk" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "Footy Career $RELEASE_TAG" \
+            --notes "Footy Career Android APK. Debug-signed for sideloading and testing; not signed for Google Play production distribution."
