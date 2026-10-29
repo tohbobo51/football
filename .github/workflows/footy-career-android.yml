@@ -72,7 +72,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: Prepare Android output directory
-        run: mkdir -p FootyCareer/dist
+        run: mkdir -p FootyCareer/dist/Android
 
       - name: Export Godot Android APK
         uses: firebelley/godot-export@v8.0.0
@@ -89,7 +89,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          apk="FootyCareer/dist/FootyCareer.apk"
+          apk="FootyCareer/dist/Android/FootyCareer.apk"
           if [ ! -s "$apk" ]; then
             echo "::error::APK not found at $apk; exported APK files:"
             find FootyCareer -type f -name '*.apk' -print
@@ -127,7 +127,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: FootyCareer-Android-APK
-          path: FootyCareer/dist/FootyCareer.apk
+          path: FootyCareer/dist/Android/FootyCareer.apk
           if-no-files-found: error
           retention-days: 90
 
@@ -137,7 +137,7 @@ jobs:
           RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
           gh release create "$RELEASE_TAG" \
-            "FootyCareer/dist/FootyCareer.apk" \
+            "FootyCareer/dist/Android/FootyCareer.apk" \
             --repo "$GITHUB_REPOSITORY" \
             --target "$GITHUB_SHA" \
             --title "Footy Career $RELEASE_TAG" \
