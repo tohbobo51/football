@@ -12,7 +12,7 @@ Buka `FootyCareer/project.godot` menggunakan Godot 4.7.2, lalu jalankan scene ut
 
 ## APK Android
 
-APK untuk sideloading akan dilampirkan sebagai release asset dengan nama `FootyCareer.apk` setelah workflow build berhasil. Paket ditandatangani dengan debug key sementara sehingga cocok untuk instalasi/uji coba Android; ini bukan build signing produksi Google Play.
+APK sideload pertama sudah tersedia sebagai release asset [`FootyCareer.apk` (v1.0.0)](https://github.com/tohbobo51/football/releases/download/v1.0.0/FootyCareer.apk). Paket ditandatangani dengan debug key sementara sehingga cocok untuk instalasi/uji coba Android; ini bukan build signing produksi Google Play.
 
 Untuk build berikutnya, buka tab **Actions** → **Build Footy Career Android APK** → **Run workflow**, lalu masukkan tag release unik (misalnya `v1.0.1`). Workflow mengunduh Godot 4.7.2 serta toolchain Android yang diperlukan, memakai runner GitHub Actions, memeriksa package/signature/ABI APK, kemudian mengunggah release. Komponen SDK mengikuti lisensi upstream Android; workflow menerima prompt lisensinya pada runner agar pemasangan SDK bisa berlangsung.
 
