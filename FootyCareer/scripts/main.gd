@@ -39,7 +39,8 @@ func _ready() -> void:
 		"main": load("res://assets/football/runtime/portrait_main.png"),
 		"teammate1": load("res://assets/football/runtime/portrait_teammate1.png"),
 		"teammate2": load("res://assets/football/runtime/portrait_teammate2.png"),
-		"training": load("res://assets/football/runtime/training_drill.png")
+		"training": load("res://assets/football/runtime/training_drill.png"),
+		"transfer": load("res://assets/football/runtime/transfer_contract.png")
 	}
 	_build_shell()
 	CareerState.state_changed.connect(_on_state_changed)
@@ -606,6 +607,8 @@ func _render_market() -> void:
 	_add_label(body, "Gaji %d koin/minggu" % int(club.get("weekly_wage", 0)), 9, COLOR_GOLD, true)
 	var overall_badge := _badge("OVR %d" % int(player.get("overall", 60)), COLOR_CYAN, COLOR_CYAN_SOFT)
 	row.add_child(overall_badge)
+	var transfer_art_card := _card(_content, 8, 0)
+	transfer_art_card.add_child(_image("transfer", 300, 200))
 	_add_label(_content, "KONTRAK TERSEDIA", 10, COLOR_MUTED, true)
 	for offer in CareerState.get_offers():
 		_render_offer(offer, int(player.get("overall", 60)))

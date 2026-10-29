@@ -8,7 +8,7 @@ Repo ini mempertahankan 38 screenshot referensi asli di root dan menambahkan gam
 
 ## Jalankan source
 
-Buka `FootyCareer/project.godot` menggunakan Godot 4.7.2, lalu jalankan scene utama. Aset UI, avatar, emblem, formasi, dan ilustrasi latihan tersedia di dalam source project.
+Buka `FootyCareer/project.godot` menggunakan Godot 4.7.2, lalu jalankan scene utama. Aset UI, avatar, emblem, formasi, serta ilustrasi latihan dan negosiasi transfer tersedia di dalam source project.
 
 ## APK Android
 

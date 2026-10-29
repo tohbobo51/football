@@ -1,6 +1,6 @@
 # Footy Career
 
-Career manager sepak bola 2D berbahasa Indonesia, dirancang untuk layar ponsel portrait. Game memadukan avatar, emblem klub, visual lapangan/formasi, ilustrasi latihan, kalender pertandingan, serta navigasi tab—bukan pengalaman yang hanya berupa teks.
+Career manager sepak bola 2D berbahasa Indonesia, dirancang untuk layar ponsel portrait. Game memadukan avatar, emblem klub, visual lapangan/formasi, ilustrasi latihan dan negosiasi transfer, kalender pertandingan, serta navigasi tab—bukan pengalaman yang hanya berupa teks.
 
 ## Siklus permainan
 
@@ -32,5 +32,5 @@ APK release ditandatangani dengan debug key sementara untuk sideloading dan peng
 - `scripts/ui/pitch_view.gd` — lapangan serta pengaturan formasi/kapten.
 - `scripts/ui/game_fonts.gd`, `autoload/footy_font_theme.gd` — font dan theme UI.
 - `autoload/career_state.gd` — aturan karier dan simpan-muat lokal.
-- `assets/football/` — artwork pemain, emblem klub, dan ilustrasi lapangan/latihan.
+- `assets/football/` — artwork pemain, emblem klub, serta ilustrasi latihan dan transfer/kontrak.
 - `assets/template/fonts/` — font beserta lisensi upstream.
