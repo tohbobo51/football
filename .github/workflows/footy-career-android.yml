@@ -90,13 +90,37 @@ jobs:
         run: |
           set -euo pipefail
           apk="FootyCareer/dist/FootyCareer.apk"
-          test -s "$apk"
+          if [ ! -s "$apk" ]; then
+            echo "::error::APK not found at $apk; exported APK files:"
+            find FootyCareer -type f -name '*.apk' -print
+            exit 1
+          fi
+          echo "APK exists: $apk ($(stat -c%s "$apk") bytes)"
           unzip -tq "$apk"
-          "$ANDROID_HOME/build-tools/35.0.1/apksigner" verify "$apk"
-          "$ANDROID_HOME/build-tools/35.0.1/aapt" dump badging "$apk" \
-            | grep -F "package: name='com.tohbobo51.footycareer'"
-          unzip -l "$apk" | grep -q 'lib/arm64-v8a/'
-          unzip -l "$apk" | grep -q 'lib/armeabi-v7a/'
+          echo "APK ZIP integrity: OK"
+          "$ANDROID_HOME/build-tools/35.0.1/apksigner" verify --verbose "$apk"
+          badging="$RUNNER_TEMP/footy-career-apk-badging.txt"
+          if ! "$ANDROID_HOME/build-tools/35.0.1/aapt" dump badging "$apk" > "$badging"; then
+            cat "$badging"
+            exit 1
+          fi
+          cat "$badging"
+          if ! grep -Fq "package: name='com.tohbobo51.footycareer'" "$badging"; then
+            echo "::error::APK package ID does not match com.tohbobo51.footycareer"
+            exit 1
+          fi
+          python3 - "$apk" <<'PY'
+          import sys
+          import zipfile
+
+          with zipfile.ZipFile(sys.argv[1]) as apk:
+              names = apk.namelist()
+          required = ("lib/arm64-v8a/", "lib/armeabi-v7a/")
+          missing = [abi for abi in required if not any(name.startswith(abi) and not name.endswith("/") for name in names)]
+          if missing:
+              raise SystemExit("APK is missing native library ABI(s): " + ", ".join(missing))
+          print("Required native ABIs present: ARM64 and ARMv7")
+          PY
           ls -lh "$apk"
 
       - name: Upload verified APK as workflow artifact
